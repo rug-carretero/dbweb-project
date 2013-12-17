@@ -5,7 +5,8 @@ try {
     $db = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
-    echo 'Connection failed: ' . $e->getMessage();
+		echo 'Connection failed: ' . $e->getMessage();
+	}
 }
 ?>
 <!DOCTYPE html>

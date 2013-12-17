@@ -37,10 +37,10 @@ if(isset($_POST['submit']))
 {
 	if($_POST['gender'] && $_POST['nationality'] && $_POST['countries'] && $_POST['age'])
 	{
-		$gender 	= mysql_real_escape_string($_POST['gender']);
-		$natio		= mysql_real_escape_string($_POST['nationality']);
-		$age		= mysql_real_escape_string($_POST['age']);
-		$country	= mysql_real_escape_string($_POST['countries']);
+		$gender 	= $db->quote($_POST['gender']);
+		$natio		= $db->quote($_POST['nationality']);
+		$age		= $db->quote($_POST['age']);
+		$country	= $db->quote($_POST['countries']);
 		if($_POST['age'] > 1900 && $_POST['age'] < 2000)
 		{
 			if($_POST['gender'] == 'F' || $_POST['gender'] == 'M')
@@ -80,12 +80,12 @@ if(isset($_POST['submit']))
 
 	$sql = "SELECT username, userID, nationality, age, location, gender
 			FROM users 
-			WHERE username='".mysql_real_escape_string(strtolower($_SESSION['username']))."'"; 
+			WHERE username='".$db->quote($_SESSION['username']))."'"; 
 	$result = $db->query($sql);
 	
 	$sql_int = "SELECT *
 				FROM interests 
-				WHERE userID='".mysql_real_escape_string(strtolower($_SESSION['userID']))."'"; 
+				WHERE userID='".$db->quote($_SESSION['userID']))."'"; 
 	$resultInt = $db->query($sql_int);
 	
 	if($result->rowCount() == 0 && empty($result) && $resultInt->rowCount() == 0 && empty($resultInt)) 
@@ -106,7 +106,7 @@ if(isset($_POST['submit']))
 			?>
 				<p><i>Below you can fill in some more information about yourself. 
 				This information will be used to determine if you are eligble to participate in certain projects.
-				However it isn't necessary to fill in the additional information.  </i><p>
+				It isn't necessary to fill in the additional information.  </i><p>
 
 				<table>
 					<col width="150">
