@@ -1,0 +1,20 @@
+README
+
+This website provides a platform for people who want to make use of the crowd sourcing method - project owners - and participants in crowd sourcing projects.
+	Project owners are able to set up multiple projects. Each project has its own set of questions. These questions can be either an open question or a multiple choice question. Furthermore 
+the project owner is able to set criteria for his or her projects. For example a project can only be available for people in a certain country or based on certain interests.
+	Participants can as well as project owners participate in project(s) of their choice. They are freely to choose to participate in the project available for them and then answer the 
+questions related to those projects.
+
+INSTALLATION
+
+The initial database can be made using the .sql files. To host the website you need to use .php files. Depending on how you use the database the configuration variables of the database should be edited in the config.php file.
+
+TASK DISTRIBUTION
+
+Thom Carretero Seinhorst - 
+Ynte Tijsma - 
+
+CVS
+
+https://github.com/rug-carretero/dbweb-project
