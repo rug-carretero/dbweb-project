@@ -37,10 +37,10 @@ if(isset($_POST['submit']))
 {
 	if($_POST['gender'] && $_POST['nationality'] && $_POST['countries'] && $_POST['age'])
 	{
-		$gender 	= $db->quote($_POST['gender']);
-		$natio		= $db->quote($_POST['nationality']);
-		$age		= $db->quote($_POST['age']);
-		$country	= $db->quote($_POST['countries']);
+		$gender 	= mysql_real_escape_string($_POST['gender']);
+		$natio		= mysql_real_escape_string($_POST['nationality']);
+		$age		= mysql_real_escape_string($_POST['age']);
+		$country	= mysql_real_escape_string($_POST['countries']);
 		if($_POST['age'] > 1900 && $_POST['age'] < 2000)
 		{
 			if($_POST['gender'] == 'F' || $_POST['gender'] == 'M')
@@ -80,12 +80,12 @@ if(isset($_POST['submit']))
 
 	$sql = "SELECT username, userID, nationality, age, location, gender
 			FROM users 
-			WHERE username='".$db->quote($_SESSION['username']))."'"; 
+			WHERE username='".mysql_real_escape_string(strtolower($_SESSION['username']))."'"; 
 	$result = $db->query($sql);
 	
 	$sql_int = "SELECT *
 				FROM interests 
-				WHERE userID='".$db->quote($_SESSION['userID']))."'"; 
+				WHERE userID='".mysql_real_escape_string(strtolower($_SESSION['userID']))."'"; 
 	$resultInt = $db->query($sql_int);
 	
 	if($result->rowCount() == 0 && empty($result) && $resultInt->rowCount() == 0 && empty($resultInt)) 
@@ -106,7 +106,7 @@ if(isset($_POST['submit']))
 			?>
 				<p><i>Below you can fill in some more information about yourself. 
 				This information will be used to determine if you are eligble to participate in certain projects.
-				It isn't necessary to fill in the additional information.  </i><p>
+				However it isn't necessary to fill in the additional information.  </i><p>
 
 				<table>
 					<col width="150">
@@ -124,16 +124,9 @@ if(isset($_POST['submit']))
 						<td>
 							<select name="nationality">
 								<option value=""></option>
-								<?php 
-									foreach($nationals as $nationality => $value) 
-									{
-										$nationality = htmlspecialchars($nationality);
-										if($row['nationality'] == $value)
-											echo '<option value="'. $value .'" selected>'. $value .'</option>' . "\n";
-										else
-											echo '<option value="'. $value .'">'. $value .'</option>' . "\n";
-									}
-								?>
+								<option value="NL" <?php if($row['nationality'] == 'NL') echo 'selected';?>>Netherlands</option>
+								<option value="BE" <?php if($row['nationality'] == 'BE') echo 'selected';?>>Belgian</option>
+								<option value="UK" <?php if($row['nationality'] == 'UK') echo 'selected';?>>British</option>								
 							</select>
 						</td>
 					</tr>
@@ -141,14 +134,10 @@ if(isset($_POST['submit']))
 						<td><label for="country">Country you live in: </label></td>
 						<td>
 							<select name="countries">
-							<?php
-							foreach($countries as $key => $value) {
-								if($row['location'] == $key)
-									echo '<option value="'.$key.'" title="'.htmlspecialchars($value).'" selected>'.htmlspecialchars($value).'</option>' . "\n";
-								else
-									echo '<option value="'.$key.'" title="'.htmlspecialchars($value).'">'.htmlspecialchars($value).'</option>' . "\n";
-							}
-							?>
+							<option value=""></option>
+							<option value="NL" <?php if($row['location'] == 'NL') echo 'selected';?>>Netherlands</option>
+							<option value="BE" <?php if($row['location'] == 'BE') echo 'selected';?>>Belgium</option>
+							<option value="UK" <?php if($row['location'] == 'UK') echo 'selected';?>>United Kingdom</option>		
 							</select>
 						</td>
 					</tr>

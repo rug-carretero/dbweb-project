@@ -4,3 +4,9 @@
 	voor gebruik:
 		include("inc/salt.php");
 		$salt = generateSalt();
+
+
+
+---
+Join projects:
+- controleer leeftijd

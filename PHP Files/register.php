@@ -5,8 +5,7 @@ try {
     $db = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
-		echo 'Connection failed: ' . $e->getMessage();
-	}
+    echo 'Connection failed: ' . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -30,7 +29,7 @@ try {
 	if(isset($_POST['submit']))
 	{
 		$error_msg = '';
-		if($_POST['username'] && $_POST['password'] && $_POST['confirmpassword'] && $_POST['email'])
+		if($_POST['username'] && $_POST['password'] && $_POST['confirmpassword'] && $_POST['email'] && isset($_POST['usertype']))
 		{
 			if($_POST['password'] == $_POST['confirmpassword'] && strlen($_POST['password']) >= 8)
 			{
@@ -38,6 +37,7 @@ try {
 				$email 		= filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
 				$email 		= filter_var($email, FILTER_VALIDATE_EMAIL);
 				$password 	= filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+				$usertype 	= filter_input(INPUT_POST, 'usertype', FILTER_SANITIZE_STRING);
 				if (!filter_var($email, FILTER_VALIDATE_EMAIL)) 
 				{
 					// Not a valid email
@@ -82,15 +82,15 @@ try {
 			 
 					// Insert the new user into the database 
 					if ($insert_stmt = $db->prepare("INSERT INTO users (
-							username, email, password, salt
-					) VALUES (?, ?, ?, ?)")) 
+							username, email, password, salt, groupID
+					) VALUES (?, ?, ?, ?, ?)")) 
 					{
 			 
 						$insert_stmt->bindParam(1,$username);
 						$insert_stmt->bindParam(2,$email); 
 						$insert_stmt->bindParam(3,$password);
 						$insert_stmt->bindParam(4,$random_salt);
-						//$insert_stmt->bindParam(5,'1');
+						$insert_stmt->bindParam(5,$usertype);
 						
 						// Execute the prepared query.
 						$insert_stmt->execute();						
@@ -147,7 +147,11 @@ try {
 			<td><label for="email">Email address: </label></td>
 			<td><input type="text" name="email" maxlength="50" />
 		</tr>
-			<tr>
+		<tr>
+			<td><label for="usertype">Type user: </label></td>
+			<td><input type="radio" name="usertype" value="1" />User <input type="radio" name="usertype" value="2" />Owner 
+		</tr>
+		<tr>
 			<td align="center" colspan="2">
 				<input type="submit" name="submit" value="Register"/>
 			</td>

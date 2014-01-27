@@ -2,7 +2,6 @@
 session_start();
 
 include("inc/salt.php");
-
 if(isset($_GET['logout']))
 {
 	session_destroy();
@@ -52,7 +51,7 @@ try {
 				{
 					$sql = "SELECT password,salt,username, userID 
 							FROM users 
-							WHERE username='". $conn->quote($_POST['username'])."'"; 
+							WHERE username='".mysql_real_escape_string(strtolower($_POST['username']))."'"; 
 					$result = $conn->query($sql);
 
 					if($result->rowCount() > 0 && !empty($result)) 
