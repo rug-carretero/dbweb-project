@@ -8,7 +8,7 @@ questions related to those projects.
 
 INSTALLATION
 
-The initial database can be made using the .sql files. To host the website you need to use .php files. Depending on how you use the database the configuration variables of the database should be edited in the config.php file.
+The initial database can be made using the .sql files. To host the website you need to use .php files. Depending on how you use the database the configuration variables of the database should be edited in the config.php file as well as the database connection statements in the various .php files.
 
 TASK DISTRIBUTION
 
