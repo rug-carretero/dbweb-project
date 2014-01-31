@@ -6,14 +6,19 @@ the project owner is able to set criteria for his or her projects. For example a
 	Participants can as well as project owners participate in project(s) of their choice. They are freely to choose to participate in the project available for them and then answer the 
 questions related to those projects.
 
+We have not implemented everything we wanted to do based on the requirements:
+- Project owners can't exclude/ban people from projects.
+- Project owners don't have the ability to edit a project.
+
+
 INSTALLATION
 
 The initial database can be made using the .sql files. To host the website you need to use .php files. Depending on how you use the database the configuration variables of the database should be edited in the config.php file as well as the database connection statements in the various .php files.
 
 TASK DISTRIBUTION
 
-Thom Carretero Seinhorst - 
-Ynte Tijsma - 
+Thom Carretero Seinhorst - Implemented everything concerning the project owner, README, code review and testing of Ynte's work
+Ynte Tijsma - Implemented everything concerning the regular user, manual, code review and testing of Thom's work
 
 CVS
 
