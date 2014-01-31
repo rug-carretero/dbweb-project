@@ -1,0 +1,19 @@
+MANUAL CROWDSOURCING WEBSITE
+
+REGULAR USER
+
+As a regular user you can join projects and answer the questions related to the project. To join a project navigate to the 'Join projects' tab in the menu on the left. You will be able to see the projects for which you can enroll yourself, the project(s) in which you participate if any and the projects of which you answered all the questions of. To enroll simply click 'Join project'. To answer question(s) of a project simply click 'Answer questions'. 
+
+As a user you are most likely not able to take part in every project. Some projects have certain requirements in the form of parameters such as age. If you are not in the age range required for the project or you haven't set your age range, you are not able to take part in the project. These parameters can be found in your user profile. To set/edit your profile go to the 'Edit profile' tab and fill in/edit your personal information. 
+
+PROJECT OWNER
+
+As a project owner you have the same abilities as a regular user as well as having the ability to set up and maintain projects. To create a new project go to the 'Create project' tab in the menu on the left. A screen will open where you can fill in all the required information for the project.
+
+To maintain a project just go the 'Projects' tab. There you can add questions to projects, see the (intermediate) results of your projects and delete projects. You can choose between two types of question. It is either an open question or a multiple choice question. For multiple choice questions you are able to give 2 to 4 possible correct answers. 
+
+The last tab 'See results' also allows you to check the results of your (ongoing) projects. 
+
+WEBSITE MAINTAINER
+
+For now every user is able to set 4 different interests. In the future it is possible to add more interests to the user profile. This can be done by adding another field to the interests table. The php script will automatically show it after the database has been altered.
