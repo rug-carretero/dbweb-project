@@ -9,7 +9,7 @@ questions related to those projects.
 We have not implemented everything we wanted to do based on the requirements:
 - Project owners can't exclude/ban people from projects.
 - Project owners don't have the ability to edit a project.
-
+- Database optimization: there is no linkage of tables as of yet. 
 
 INSTALLATION
 

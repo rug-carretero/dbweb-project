@@ -22,8 +22,8 @@ TEST ACCOUNT
 
 Regular user:
 - Username: user
-- Password: user
+- Password: useruser
 
 Project owner:
 - Username: owner
-- Password: owner
+- Password: ownerowner
