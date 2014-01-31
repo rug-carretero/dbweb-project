@@ -17,3 +17,13 @@ The last tab 'See results' also allows you to check the results of your (ongoing
 WEBSITE MAINTAINER
 
 For now every user is able to set 4 different interests. In the future it is possible to add more interests to the user profile. This can be done by adding another field to the interests table. The php script will automatically show it after the database has been altered.
+
+TEST ACCOUNT
+
+Regular user:
+- Username: user
+- Password: user
+
+Project owner:
+- Username: owner
+- Password: owner
