@@ -1,19 +1,24 @@
 <?php
 session_start();
 
-if(!isset($_SESSION['username']))
-{
-	header("Location: login.php");
-}
-
 include("config.php");
-include("inc/nationalities.php");
-include("inc/countries.php");
 try {
-    $db = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
+    $db = new PDO("mysql:host=".$host.";dbname=".$database,$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
     echo 'Connection failed: ' . $e->getMessage();
+}
+
+$selectUser = $db->query('SELECT logID,userID,username 
+							FROM loginlog 
+							WHERE userID="'.mysql_real_escape_string($_SESSION['userID']).'" 
+										and username="'.mysql_real_escape_string($_SESSION['username']).'"
+										and sessieID="'.mysql_real_escape_string($_SESSION['sessieID']).'"');	
+$rowUser	= $selectUser->fetch(PDO::FETCH_ASSOC);
+if(!$rowUser)
+{
+	session_destroy();
+	header("Location: login.php");
 }
 ?>
 <!DOCTYPE html>
@@ -35,20 +40,21 @@ try {
 <?php
 if(isset($_POST['submit']))
 {
-	if($_POST['gender'] && $_POST['nationality'] && $_POST['countries'] && $_POST['age'])
+	if($_POST['gender'])
 	{
 		$gender 	= mysql_real_escape_string($_POST['gender']);
 		$natio		= mysql_real_escape_string($_POST['nationality']);
 		$age		= mysql_real_escape_string($_POST['age']);
 		$country	= mysql_real_escape_string($_POST['countries']);
-		if($_POST['age'] > 1900 && $_POST['age'] < 2000)
+		if(($age > 1900 && $age < 2005) || !$age)
 		{
-			if($_POST['gender'] == 'F' || $_POST['gender'] == 'M')
+			if($gender == 'F' || $gender == 'M')
 			{			
 				$select = $db->query('SELECT * FROM interests');
 
 				$total_column = $select->columnCount();
 
+				//Edit interets
 				for ($counter = 1; $counter <= $total_column-1; $counter ++) {
 					$meta = $select->getColumnMeta($counter);
 					if($meta['name'] != 'userID' && $meta['name'] != 'interestID')
@@ -57,15 +63,15 @@ if(isset($_POST['submit']))
 							SET ".$meta['name']."=?
 							WHERE userID=?";
 						$q_int = $db->prepare($sql_int);
-						$q_int->execute(array($_POST[$meta['name']],$_SESSION['userID']));
+						$q_int->execute(array($_POST[$meta['name']],$rowUser['userID']));
 					}
 				}
-				// query
+				
 				$sql = "UPDATE users 
 						SET age=?, nationality=?, location=?, gender=?
 						WHERE userID=? and username=?";
 				$q = $db->prepare($sql);
-				$q->execute(array($age,$natio,$country,$gender,$_SESSION['userID'],$_SESSION['username']));
+				$q->execute(array($age,$natio,$country,$gender,$rowUser['userID'],$rowUser['username']));
 				$error_msg = "Your profile has been successfully updated.\n";
 			}
 			else
@@ -75,17 +81,17 @@ if(isset($_POST['submit']))
 			$error_msg = 'Wrong date of birth';
 	}
 	else
-		$error_msg = "Fill in all forms.";
+		$error_msg = "Fill in your gender.";
 }
 
 	$sql = "SELECT username, userID, nationality, age, location, gender
 			FROM users 
-			WHERE username='".mysql_real_escape_string(strtolower($_SESSION['username']))."'"; 
+			WHERE username='".$rowUser['username']."'"; 
 	$result = $db->query($sql);
 	
 	$sql_int = "SELECT *
 				FROM interests 
-				WHERE userID='".mysql_real_escape_string(strtolower($_SESSION['userID']))."'"; 
+				WHERE userID='".$rowUser['userID']."'"; 
 	$resultInt = $db->query($sql_int);
 	
 	if($result->rowCount() == 0 && empty($result) && $resultInt->rowCount() == 0 && empty($resultInt)) 
@@ -105,7 +111,7 @@ if(isset($_POST['submit']))
 			}
 			?>
 				<p><i>Below you can fill in some more information about yourself. 
-				This information will be used to determine if you are eligble to participate in certain projects.
+				This information will be used to determine if you are eligible to participate in certain projects.
 				However it isn't necessary to fill in the additional information.  </i><p>
 
 				<table>

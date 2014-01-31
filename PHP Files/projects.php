@@ -1,20 +1,25 @@
 <?php
 session_start();
-date_default_timezone_set('GMT');
-
-if(!isset($_SESSION['username']))
-{
-	header("Location: login.php");
-}
+date_default_timezone_set('europe/paris');
 
 include("config.php");
-include("inc/nationalities.php");
-include("inc/countries.php");
 try {
-    $db = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
+    $db = new PDO("mysql:host=".$host.";dbname=".$database,$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
     echo 'Connection failed: ' . $e->getMessage();
+}
+
+$selectUser = $db->query('SELECT logID,userID,username 
+							FROM loginlog 
+							WHERE userID="'.mysql_real_escape_string($_SESSION['userID']).'" 
+										and username="'.mysql_real_escape_string($_SESSION['username']).'"
+										and sessieID="'.mysql_real_escape_string($_SESSION['sessieID']).'"');	
+$rowUser	= $selectUser->fetch(PDO::FETCH_ASSOC);
+if(!$rowUser)
+{
+	session_destroy();
+	header("Location: login.php");
 }
 ?>
 <!DOCTYPE html>
@@ -38,15 +43,18 @@ try {
 		{
 			$sql = "SELECT username,userID,location,nationality,age,gender
 					FROM users 
-					WHERE username=".$db->quote($_SESSION['username'])." and userID=".$db->quote($_SESSION['userID']); 
+					WHERE username='".$rowUser['username']."' and userID=".$rowUser['userID']; 
 			$result = $db->query($sql);						
 			$userRow = $result->fetch(PDO::FETCH_ASSOC);
 			$ageDif = date("Y")-$userRow['age'];
+			$projectID = mysql_real_escape_string($_GET['join']);
 			if($ageDif < 10) { $ageP = 1;}
 			elseif($ageDif > 9 && $ageDif < 20) { $ageP = 2; }
 			elseif($ageDif > 19 && $ageDif < 30) { $ageP = 3; }
 			elseif($ageDif > 29 && $ageDif < 40) { $ageP = 4; }
-			$select = $db->query('SELECT * FROM project WHERE projectID="'.mysql_real_escape_string($_GET['join']).'" and
+			$select = $db->query('SELECT * 
+									FROM project 
+									WHERE projectID="'.$projectID.'" and
 																DATE(now()) BETWEEN DATE(beginDate) AND DATE(endDate)');	
 			if($select->rowCount() > 0 && !empty($select)) 
 			{
@@ -55,29 +63,30 @@ try {
 				{
 					if(!$row['nationalityPref'] || $row['nationalityPref'] == $userRow['nationality'])
 					{
-						if($row['agePref'] == 0)
+						if($row['agePref'] == 0 || $ageP == $row['agePref'])
 						{
 							$sql_int = "SELECT *
 										FROM interests 
-										WHERE userID='".mysql_real_escape_string(strtolower($_SESSION['userID']))."'"; 
+										WHERE userID='".$rowUser['userID']."'"; 
 							$resultInt = $db->query($sql_int);								
 							$rowInt = $resultInt->fetch(PDO::FETCH_ASSOC);
 							
-							$interest = explode(',',$row['interests']);
 							$count = 0;
-							foreach($interest as $value)
+							$interest = explode(',',$row['interests']);
+							$c = count($interest);
+							for($i=0;$i<$c-1;$i++)
 							{
-								if($rowInt[$value] == 1)
+								if($rowInt[$interest[2]] == 1)
 									$count++;
 							}
-							if($count == count($interest))
+							if($count == count($interest)-1)
 							{
 								if ($insert_stmt = $db->prepare("INSERT INTO joinproject (
 										projectID,userID
 								) VALUES (?,?)")) 
 								{ 
 									$insert_stmt->bindParam(1,$row['projectID']);
-									$insert_stmt->bindParam(2,$row['userID']); 									
+									$insert_stmt->bindParam(2,$userRow['userID']); 									
 									// Execute the prepared query.
 									$insert_stmt->execute();
 								echo 'You joined the project!';
@@ -91,16 +100,16 @@ try {
 		?>
 			<table width="100%">
 				<tr>
-					<td style="width:200px;">Title</td>
-					<td>Questions</td>
-					<td>Begin date</td>
-					<td>End date</td>
-					<td>Join</td>
+					<td style="width:200px;"><b>Title</b></td>
+					<td><b>Questions</b></td>
+					<td><b>Begin date</b></td>
+					<td><b>End date</b></td>
+					<td><b>Join</b></td>
 				</tr>
 					<?php
 					$sql = "SELECT username,userID,location,nationality,age,gender
 							FROM users 
-							WHERE username=".$db->quote($_SESSION['username'])." and userID=".$db->quote($_SESSION['userID']); 
+							WHERE username=".$db->quote($_SESSION['username'])." and userID=".$rowUser['userID']; 
 					$result = $db->query($sql);						
 					$userRow = $result->fetch(PDO::FETCH_ASSOC);
 					$ageDif = date("Y")-$userRow['age'];
@@ -108,39 +117,65 @@ try {
 					elseif($ageDif > 9 && $ageDif < 20) { $ageP = 2; }
 					elseif($ageDif > 19 && $ageDif < 30) { $ageP = 3; }
 					elseif($ageDif > 29 && $ageDif < 40) { $ageP = 4; }
-					$select = $db->query('SELECT * FROM project WHERE DATE(now()) BETWEEN DATE(beginDate) AND DATE(endDate)');	
+					$select = $db->query('SELECT * 
+										FROM project 
+										WHERE DATE(now()) BETWEEN DATE(beginDate) AND DATE(endDate)');	
 					while ($row = $select->fetch(PDO::FETCH_ASSOC)) 
 					{	
 						if(!$row['locationPref'] || $row['locationPref'] == $userRow['location'])
 						{
 							if(!$row['nationalityPref'] || $row['nationalityPref'] == $userRow['nationality'])
 							{
-								if($row['agePref'] == 0)
+								if($row['agePref'] == 0 || $ageP == $row['agePref'])
 								{
 									$sql_int = "SELECT *
 												FROM interests 
-												WHERE userID='".mysql_real_escape_string(strtolower($_SESSION['userID']))."'"; 
+												WHERE userID='".mysql_real_escape_string($_SESSION['userID'])."'"; 
 									$resultInt = $db->query($sql_int);								
 									$rowInt = $resultInt->fetch(PDO::FETCH_ASSOC);
 									
-									$interest = explode(',',$row['interests']);
-									$count = 0;
-									foreach($interest as $value)
+									
+										$count = 0;
+										$interest = explode(',',$row['interests']);
+										$c = count($interest);
+										for($i=0;$i<$c-1;$i++)
+										{
+											if($rowInt[$interest[2]] == 1)
+												$count++;
+										}
+										
+									if($count == count($interest)-1)
 									{
-										if($rowInt[$value] == 1)
-											$count++;
-									}
-									if($count == count($interest))
-									{
-										$result = $db->query('SELECT projectID FROM questions where projectID="'.$row['projectID'].'"');	
-										$answerQ = $db->query('SELECT * FROM joinproject where projectID="'.$row['projectID'].'" 
-																				and userID="'.mysql_real_escape_string(strtolower($_SESSION['userID'])).'"');
-										if($answerQ->rowCount() > 0){
-											$text = 'Answer questions';
-											$link = 'questions.php?projectID='.$row['projectID'];
-										} else {
-											$text = 'Join project';
-											$link = 'projects.php?join='.$row['projectID'];
+										$result = $db->query('SELECT projectID 
+															FROM questions 
+															WHERE projectID="'.$row['projectID'].'"');	
+										$answerQ = $db->query('SELECT * 
+															FROM joinproject 
+															WHERE projectID="'.$row['projectID'].'" 
+																	and userID="'.$rowUser['userID'].'"');
+										$countQ = $db->query('SELECT questionID 
+															FROM questions 
+															WHERE projectID="'.$row['projectID'].'"');
+										$countA = $db->query('SELECT answerID 
+															FROM answer 
+															WHERE projectID="'.$row['projectID'].'" 
+																		and userID="'.$rowUser['userID'].'"');
+										if($countQ->rowCount() == 0)
+										{
+											$link = 'No questions yet';
+										} elseif($countQ->rowCount() == $countA->rowCount())
+										{
+											$link = 'Completed';
+										}
+										else
+										{
+											if($answerQ->rowCount() > 0){
+												$text = 'Answer questions';
+												$link = '<a href="../questions.php?projectID='.$row['projectID'].'">'.$text.'</a>';
+											} else {
+												$text = 'Join project';
+												$link = '<a href="../projects.php?join='.$row['projectID'].'">'.$text.'</a>';
+											}
 										}
 										?>
 											<tr>
@@ -148,7 +183,7 @@ try {
 												<td><?php echo $result->rowCount();?></td>
 												<td><?php echo $row['beginDate'];?></td>
 												<td><?php echo $row['endDate'];?></td>
-												<td><a href="../<?php echo $link;?>"><?php echo $text;?></a></td>
+												<td><?php echo $link;?></td>
 											</tr>
 										<?php
 									}

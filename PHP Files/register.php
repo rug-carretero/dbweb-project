@@ -2,7 +2,7 @@
 include("config.php");
 include("inc/salt.php");
 try {
-    $db = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
+    $db = new PDO("mysql:host=".$host.";dbname=".$database,$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
     echo 'Connection failed: ' . $e->getMessage();

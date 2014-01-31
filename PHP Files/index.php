@@ -2,7 +2,7 @@
 session_start();
 include("config.php");
 try {
-    $db = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
+    $db = new PDO("mysql:host=".$host.";dbname=".$database,$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
     echo 'Connection failed: ' . $e->getMessage();
@@ -22,12 +22,42 @@ try {
 	</div>
 
 		<?php include("inc/menu.php"); ?>
-
 		<div id="content" style="background-color:#EEEEEE;height:600px;width:800px;float:left;">
-			Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui.
-		</div>
-
-		<?php include("inc/footer.php"); ?>
+				<?php 
+		if(isset($_SESSION['username']))
+		{
+		?>
+			Welcome <?php echo ucfirst($_SESSION['username']); ?>!<br><br>
+			
+			You have participated in 
+			<?php 
+			$sql = "SELECT userID FROM joinproject WHERE userID = ".$db->quote($_SESSION['userID']);
+			$result = $db->query($sql);
+			echo $result->rowCount();
+			?>
+			project(s) and you helped answer
+			<?php
+			$sql = "SELECT userID FROM answer WHERE userID = ".$db->quote($_SESSION['userID']);
+			$result = $db->query($sql);
+			echo $result->rowCount();
+			?>
+			question(s) during the participation in those projects.
+			
+			
+		<?php
+		} else {
+		?>
+			This website provides a platform for people who want to make use of the crowd sourcing method - project owners - and participants in crowd sourcing projects.<br><br>
+			
+			Project owners are able to set up multiple projects. Each project has its own set of questions. These questions can be either an open question or a multiple choice question. Furthermore the project owner is able to set criteria for his or her projects. For example a project can only be available for people in a certain country or based on certain interests.<br><br>
+	
+			Participants can as well as project owners participate in project(s) of their choice. They are freely to choose to participate in the project available for them and then answer the questions related to those projects.<br><br>
+			
+			If you register now, you are able to make use of these fantastic opportunities!
+		<?php
+		}
+		echo '</div>';
+		include("inc/footer.php"); ?>
 </div>
 
 </body>

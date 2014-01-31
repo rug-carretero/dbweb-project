@@ -17,7 +17,7 @@ if(isset($_SESSION['username']))
 
 include("config.php");
 try {
-    $conn = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
+    $db = new PDO("mysql:host=".$host.";dbname=".$database,$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
     echo 'Connection failed: ' . $e->getMessage();
@@ -52,7 +52,7 @@ try {
 					$sql = "SELECT password,salt,username, userID 
 							FROM users 
 							WHERE username='".mysql_real_escape_string(strtolower($_POST['username']))."'"; 
-					$result = $conn->query($sql);
+					$result = $db->query($sql);
 
 					if($result->rowCount() > 0 && !empty($result)) 
 					{		
@@ -61,10 +61,23 @@ try {
 						
 						if($hash == $row['password'])
 						{
-							$_SESSION['username'] = $row['username'];
-							$_SESSION['userID'] = $row['userID'];
-							header("Location: index.php");
-							echo 'You\'re logged in!';
+							if ($insert_stmt = $db->prepare("INSERT INTO loginlog (
+									username,userID,sessieID
+							) VALUES (?, ?, ?)")) 
+							{
+								$randSessie = rand(100000,999999);
+								$insert_stmt->bindParam(1,$row['username']);
+								$insert_stmt->bindParam(2,$row['userID']); 
+								$insert_stmt->bindParam(3,$randSessie);
+															
+								// Execute the prepared query.
+								$insert_stmt->execute();						
+								
+								$_SESSION['sessieID'] = $randSessie;
+								$_SESSION['username'] = $row['username'];
+								$_SESSION['userID'] = $row['userID'];
+								header("Location: index.php");
+							}
 						}
 						else
 							echo 'Invalid username or password!';
@@ -76,7 +89,7 @@ try {
 				}
 			}
 			?>
-				<form action="login.php" method="post">
+				<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
 					Username: <input type="text" name="username" /><br />
 					Password: <input type="password" name="password" /><br />
 					<input type="submit" name="submit" value="Log in!" />

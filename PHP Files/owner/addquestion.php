@@ -2,11 +2,39 @@
 session_start();
 include("../config.php");
 try {
-    $db = new PDO("mysql:host=localhost;dbname=project",$userDB,$passwordDB); 
+    $db = new PDO("mysql:host=".$host.";dbname=".$database,$userDB,$passwordDB); 
 }	
     catch (PDOException $e){
     echo 'Connection failed: ' . $e->getMessage();
 }
+$selectUser = $db->query('SELECT logID,userID,username 
+							FROM loginlog 
+							WHERE userID="'.mysql_real_escape_string($_SESSION['userID']).'" 
+										and username="'.mysql_real_escape_string($_SESSION['username']).'"
+										and sessieID="'.mysql_real_escape_string($_SESSION['sessieID']).'"');	
+$rowUser	= $selectUser->fetch(PDO::FETCH_ASSOC);
+if(!$rowUser)
+{
+	session_destroy();
+	header("Location: login.php");
+}
+else
+{
+	$selectUserG = $db->query('SELECT groupID,userID 
+								FROM users 
+								WHERE userID="'.$rowUser['userID'].'" and username="'.$rowUser['username'].'"');	
+	$rowUserG	= $selectUserG->fetch(PDO::FETCH_ASSOC); 
+	if(!$rowUserG) header("Location: ../index.php");
+	if($rowUserG)
+	{
+		if($rowUserG['groupID'] != 2)
+		{
+			header("Location: ../index.php");
+			exit;
+		}
+	}
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,7 +57,7 @@ try {
 if(isset($_GET['projectID']))
 {
 	$projectID = mysql_real_escape_string($_GET['projectID']);
-	$select = $db->query('SELECT projectID,name FROM project where userID="'.$_SESSION['userID'].'" and projectID='.$projectID.'');	
+	$select = $db->query('SELECT projectID,name FROM project where userID="'.$rowUser['userID'].'" and projectID='.$projectID.'');	
 	$row = $select->fetch(PDO::FETCH_ASSOC); 
 	if($row)
 	{
@@ -44,12 +72,14 @@ if(isset($_GET['projectID']))
 				if($type == 'open')
 				{
 					if ($insert_stmt = $db->prepare("INSERT INTO questions (
-							projectID, type, title
-					) VALUES (?, ?, ?)")) 
+							projectID, type, title, userID
+					) VALUES (?, ?, ?, ?)")) 
 					{ 
+						$type	 = mysql_real_escape_string($_POST['type']);
 						$insert_stmt->bindParam(1,$projectID);
-						$insert_stmt->bindParam(2,$_POST['type']); 
+						$insert_stmt->bindParam(2,$type); 
 						$insert_stmt->bindParam(3,$question); 
+						$insert_stmt->bindParam(4,$rowUser['userID']); 
 						
 						// Execute the prepared query.
 						$insert_stmt->execute();
@@ -59,21 +89,23 @@ if(isset($_GET['projectID']))
 				if($type == 'multi' && isset($_POST['option1']) && isset($_POST['option2']))
 				{
 					if ($insert_stmt = $db->prepare("INSERT INTO questions (
-							projectID, type, title, option1, option2, option3, option4
-					) VALUES (?, ?, ?, ?, ?, ?, ?)")) 
+							projectID, userID, type, title, option1, option2, option3, option4
+					) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) 
 					{ 
 						$option1 = mysql_real_escape_string($_POST['option1']);
 						$option2 = mysql_real_escape_string($_POST['option2']);
 						$option3 = mysql_real_escape_string($_POST['option3']);
 						$option4 = mysql_real_escape_string($_POST['option4']);
+						$type	 = mysql_real_escape_string($_POST['type']);
 						
 						$insert_stmt->bindParam(1,$projectID);
-						$insert_stmt->bindParam(2,$_POST['type']); 
-						$insert_stmt->bindParam(3,$question); 
-						$insert_stmt->bindParam(4,$option1); 
-						$insert_stmt->bindParam(5,$option2); 
-						$insert_stmt->bindParam(6,$option3); 
-						$insert_stmt->bindParam(7,$option4); 
+						$insert_stmt->bindParam(2,$rowUser['userID']); 
+						$insert_stmt->bindParam(3,$type); 
+						$insert_stmt->bindParam(4,$question); 
+						$insert_stmt->bindParam(5,$option1); 
+						$insert_stmt->bindParam(6,$option2); 
+						$insert_stmt->bindParam(7,$option3); 
+						$insert_stmt->bindParam(8,$option4); 
 						
 						// Execute the prepared query.
 						$insert_stmt->execute();
@@ -81,7 +113,7 @@ if(isset($_GET['projectID']))
 					}
 				}
 				else if($type == 'multi' && (!isset($_POST['option1']) || !isset($_POST['option2'])))
-					echo "You selected multi, please fill in at least 2 options.";
+					echo "You selected multi, please fill in at least the first 2 options.";
 			}
 			else
 				echo "Fill in the question and type.";

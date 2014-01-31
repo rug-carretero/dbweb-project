@@ -33,7 +33,7 @@
 	?>
 					<br /><br />
 					<b>Owner menu</b></br>
-					<a href="#">See results</a><br />
+					<a href="../owner/results.php">See results</a><br />
 					<a href="../owner/project.php">Projects</a><br />
 					<a href="../owner/create.php">Create project</a><br />			
 	<?php
